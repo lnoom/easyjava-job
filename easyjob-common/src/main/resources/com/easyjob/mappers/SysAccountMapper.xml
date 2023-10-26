@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easyjob.mappers.SysAccountMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.easyjob.entity.po.SysAccount">
+		<!--用户id-->
+		<result column="user_id" property="userId"  />
+		<!--电话号码-->
+		<result column="phone" property="phone"  />
+		<!--用户名-->
+		<result column="user_name" property="userName"  />
+		<!--用户密码-->
+		<result column="password" property="password"  />
+		<!--职位-->
+		<result column="position" property="position"  />
+		<!--状态:0 禁用 1 启用-->
+		<result column="status" property="status"  />
+		<!--用户拥有的角色,多个用","隔开-->
+		<result column="roles" property="roles"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 user_id,phone,user_name,password,position,
+		 status,roles,create_time
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.userId != null">
+				 and  user_id = #{query.userId}
+			</if>
+			<if test="query.phone != null and query.phone!=''">
+				 and  phone = #{query.phone}
+			</if>
+			<if test="query.userName != null and query.userName!=''">
+				 and  user_name = #{query.userName}
+			</if>
+			<if test="query.password != null and query.password!=''">
+				 and  password = #{query.password}
+			</if>
+			<if test="query.position != null and query.position!=''">
+				 and  position = #{query.position}
+			</if>
+			<if test="query.status != null">
+				 and  status = #{query.status}
+			</if>
+			<if test="query.roles != null and query.roles!=''">
+				 and  roles = #{query.roles}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.phoneFuzzy!= null  and query.phoneFuzzy!=''">
+				 and  phone like concat('%', #{query.phoneFuzzy}, '%')
+			</if>
+			<if test="query.userNameFuzzy!= null  and query.userNameFuzzy!=''">
+				 and  user_name like concat('%', #{query.userNameFuzzy}, '%')
+			</if>
+			<if test="query.passwordFuzzy!= null  and query.passwordFuzzy!=''">
+				 and  password like concat('%', #{query.passwordFuzzy}, '%')
+			</if>
+			<if test="query.positionFuzzy!= null  and query.positionFuzzy!=''">
+				 and  position like concat('%', #{query.positionFuzzy}, '%')
+			</if>
+			<if test="query.rolesFuzzy!= null  and query.rolesFuzzy!=''">
+				 and  roles like concat('%', #{query.rolesFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM sys_account <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM sys_account <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.easyjob.entity.po.SysAccount">
+		 INSERT INTO sys_account
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.phone != null">
+				 phone,
+			</if>
+			<if test="bean.userName != null">
+				 user_name,
+			</if>
+			<if test="bean.password != null">
+				 password,
+			</if>
+			<if test="bean.position != null">
+				 position,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.roles != null">
+				 roles,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.phone!=null">
+				 #{bean.phone},
+			</if>
+			<if test="bean.userName!=null">
+				 #{bean.userName},
+			</if>
+			<if test="bean.password!=null">
+				 #{bean.password},
+			</if>
+			<if test="bean.position!=null">
+				 #{bean.position},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.roles!=null">
+				 #{bean.roles},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.easyjob.entity.po.SysAccount">
+		 INSERT INTO sys_account
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.userId != null">
+				 user_id,
+			</if>
+			<if test="bean.phone != null">
+				 phone,
+			</if>
+			<if test="bean.userName != null">
+				 user_name,
+			</if>
+			<if test="bean.password != null">
+				 password,
+			</if>
+			<if test="bean.position != null">
+				 position,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.roles != null">
+				 roles,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.userId!=null">
+				 #{bean.userId},
+			</if>
+			<if test="bean.phone!=null">
+				 #{bean.phone},
+			</if>
+			<if test="bean.userName!=null">
+				 #{bean.userName},
+			</if>
+			<if test="bean.password!=null">
+				 #{bean.password},
+			</if>
+			<if test="bean.position!=null">
+				 #{bean.position},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.roles!=null">
+				 #{bean.roles},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.userId!=null">
+				 user_id = VALUES(user_id),
+			</if>
+			<if test="bean.phone!=null">
+				 phone = VALUES(phone),
+			</if>
+			<if test="bean.userName!=null">
+				 user_name = VALUES(user_name),
+			</if>
+			<if test="bean.password!=null">
+				 password = VALUES(password),
+			</if>
+			<if test="bean.position!=null">
+				 position = VALUES(position),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.roles!=null">
+				 roles = VALUES(roles),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.easyjob.entity.po.SysAccount">
+		 INSERT INTO sys_account(
+			 user_id,
+			 phone,
+			 user_name,
+			 password,
+			 position,
+			 status,
+			 roles,
+			 create_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.userId},
+				 #{item.phone},
+				 #{item.userName},
+				 #{item.password},
+				 #{item.position},
+				 #{item.status},
+				 #{item.roles},
+				 #{item.createTime}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.easyjob.entity.po.SysAccount">
+		 INSERT INTO sys_account(
+			 user_id,
+			 phone,
+			 user_name,
+			 password,
+			 position,
+			 status,
+			 roles,
+			 create_time
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.userId},
+				 #{item.phone},
+				 #{item.userName},
+				 #{item.password},
+				 #{item.position},
+				 #{item.status},
+				 #{item.roles},
+				 #{item.createTime}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			user_id = VALUES(user_id),
+			phone = VALUES(phone),
+			user_name = VALUES(user_name),
+			password = VALUES(password),
+			position = VALUES(position),
+			status = VALUES(status),
+			roles = VALUES(roles),
+			create_time = VALUES(create_time)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.easyjob.entity.query.SysAccountQuery">
+		 UPDATE sys_account
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.userName != null">
+				 user_name = #{bean.userName},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.position != null">
+				 position = #{bean.position},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.roles != null">
+				 roles = #{bean.roles},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete from sys_account
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据UserId修改-->
+	<update id="updateByUserId" parameterType="com.easyjob.entity.po.SysAccount">
+		 UPDATE sys_account
+ 		 <set> 
+			<if test="bean.phone != null">
+				 phone = #{bean.phone},
+			</if>
+			<if test="bean.userName != null">
+				 user_name = #{bean.userName},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.position != null">
+				 position = #{bean.position},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.roles != null">
+				 roles = #{bean.roles},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 where user_id=#{userId}
+	</update>
+
+	<!-- 根据UserId删除-->
+	<delete id="deleteByUserId">
+		delete from sys_account where user_id=#{userId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByUserId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from sys_account where user_id=#{userId}
+	</select>
+
+	<!-- 根据Phone修改-->
+	<update id="updateByPhone" parameterType="com.easyjob.entity.po.SysAccount">
+		 UPDATE sys_account
+ 		 <set> 
+			<if test="bean.userId != null">
+				 user_id = #{bean.userId},
+			</if>
+			<if test="bean.userName != null">
+				 user_name = #{bean.userName},
+			</if>
+			<if test="bean.password != null">
+				 password = #{bean.password},
+			</if>
+			<if test="bean.position != null">
+				 position = #{bean.position},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.roles != null">
+				 roles = #{bean.roles},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+ 		 </set>
+ 		 where phone=#{phone}
+	</update>
+
+	<!-- 根据Phone删除-->
+	<delete id="deleteByPhone">
+		delete from sys_account where phone=#{phone}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByPhone" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from sys_account where phone=#{phone}
+	</select>
+
+</mapper>
