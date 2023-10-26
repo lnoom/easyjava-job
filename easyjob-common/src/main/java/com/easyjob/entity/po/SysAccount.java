@@ -1,5 +1,7 @@
 package com.easyjob.entity.po;
 
+import com.easyjob.annotation.VerifyParam;
+import com.easyjob.entity.enums.VerifyRegexEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import com.easyjob.entity.enums.DateTimePatternEnum;
@@ -25,6 +27,7 @@ public class SysAccount implements Serializable {
 	 * 电话号码
 	 */
 	@JsonIgnore
+	@VerifyParam(regex = VerifyRegexEnum.PHONE)
 	private String phone;
 
 	/**

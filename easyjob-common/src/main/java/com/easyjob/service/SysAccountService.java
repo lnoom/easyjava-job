@@ -2,6 +2,7 @@ package com.easyjob.service;
 
 import java.util.List;
 
+import com.easyjob.entity.dto.SessionUserAdminDto;
 import com.easyjob.entity.query.SysAccountQuery;
 import com.easyjob.entity.po.SysAccount;
 import com.easyjob.entity.vo.PaginationResultVO;
@@ -87,4 +88,9 @@ public interface SysAccountService {
 	 */
 	Integer deleteSysAccountByPhone(String phone);
 
+	/***
+	 * 登录
+	 * @return
+	 */
+	SessionUserAdminDto login(String phone, String password);
 }

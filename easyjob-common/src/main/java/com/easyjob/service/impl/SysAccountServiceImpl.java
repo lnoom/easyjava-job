@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.easyjob.entity.dto.SessionUserAdminDto;
+import com.easyjob.entity.enums.SysAccountStatusEnum;
+import com.easyjob.exception.BusinessException;
 import org.springframework.stereotype.Service;
 
 import com.easyjob.entity.enums.PageSize;
@@ -150,5 +153,25 @@ public class SysAccountServiceImpl implements SysAccountService {
 	@Override
 	public Integer deleteSysAccountByPhone(String phone) {
 		return this.sysAccountMapper.deleteByPhone(phone);
+	}
+
+	// 登录
+	@Override
+	public SessionUserAdminDto login(String phone, String password){
+		SysAccount sysAccount = this.sysAccountMapper.selectByPhone(phone);
+		if(sysAccount==null){
+			throw new BusinessException("账号或密码错误！");
+		}
+		if(SysAccountStatusEnum.DISABLE.getStatus().equals(sysAccount.getStatus())){
+			throw new BusinessException("账号已禁用！");
+		}
+		if(!sysAccount.getPassword().equals(password)){
+			throw new BusinessException("账号或密码错误！");
+		}
+		SessionUserAdminDto adminDto = new SessionUserAdminDto();
+		adminDto.setSuperAdmin(true);
+		adminDto.setUserid(sysAccount.getUserId());
+		adminDto.setUserName(sysAccount.getUserName());
+		return adminDto;
 	}
 }
