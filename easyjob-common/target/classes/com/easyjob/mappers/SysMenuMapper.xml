@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easyjob.mappers.SysMenuMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.easyjob.entity.po.SysMenu">
+		<!--菜单id-->
+		<result column="menu_id" property="menuId"  />
+		<!--菜单名-->
+		<result column="menu_name" property="menuName"  />
+		<!--菜单类型：0 菜单 1按钮-->
+		<result column="menu_type" property="menuType"  />
+		<!--菜单跳转到的地址-->
+		<result column="menu_url" property="menuUrl"  />
+		<!--上级id-->
+		<result column="p_id" property="pId"  />
+		<!--菜单排序-->
+		<result column="sort" property="sort"  />
+		<!--权限编码-->
+		<result column="permission_code" property="permissionCode"  />
+		<!--图标-->
+		<result column="icon" property="icon"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 menu_id,menu_name,menu_type,menu_url,p_id,
+		 sort,permission_code,icon
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.menuId != null">
+				 and  menu_id = #{query.menuId}
+			</if>
+			<if test="query.menuName != null and query.menuName!=''">
+				 and  menu_name = #{query.menuName}
+			</if>
+			<if test="query.menuType != null">
+				 and  menu_type = #{query.menuType}
+			</if>
+			<if test="query.menuUrl != null and query.menuUrl!=''">
+				 and  menu_url = #{query.menuUrl}
+			</if>
+			<if test="query.pId != null">
+				 and  p_id = #{query.pId}
+			</if>
+			<if test="query.sort != null">
+				 and  sort = #{query.sort}
+			</if>
+			<if test="query.permissionCode != null and query.permissionCode!=''">
+				 and  permission_code = #{query.permissionCode}
+			</if>
+			<if test="query.icon != null and query.icon!=''">
+				 and  icon = #{query.icon}
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.menuNameFuzzy!= null  and query.menuNameFuzzy!=''">
+				 and  menu_name like concat('%', #{query.menuNameFuzzy}, '%')
+			</if>
+			<if test="query.menuUrlFuzzy!= null  and query.menuUrlFuzzy!=''">
+				 and  menu_url like concat('%', #{query.menuUrlFuzzy}, '%')
+			</if>
+			<if test="query.permissionCodeFuzzy!= null  and query.permissionCodeFuzzy!=''">
+				 and  permission_code like concat('%', #{query.permissionCodeFuzzy}, '%')
+			</if>
+			<if test="query.iconFuzzy!= null  and query.iconFuzzy!=''">
+				 and  icon like concat('%', #{query.iconFuzzy}, '%')
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM sys_menu <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM sys_menu <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.easyjob.entity.po.SysMenu">
+		 INSERT INTO sys_menu
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.menuId != null">
+				 menu_id,
+			</if>
+			<if test="bean.menuName != null">
+				 menu_name,
+			</if>
+			<if test="bean.menuType != null">
+				 menu_type,
+			</if>
+			<if test="bean.menuUrl != null">
+				 menu_url,
+			</if>
+			<if test="bean.pId != null">
+				 p_id,
+			</if>
+			<if test="bean.sort != null">
+				 sort,
+			</if>
+			<if test="bean.permissionCode != null">
+				 permission_code,
+			</if>
+			<if test="bean.icon != null">
+				 icon,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.menuId!=null">
+				 #{bean.menuId},
+			</if>
+			<if test="bean.menuName!=null">
+				 #{bean.menuName},
+			</if>
+			<if test="bean.menuType!=null">
+				 #{bean.menuType},
+			</if>
+			<if test="bean.menuUrl!=null">
+				 #{bean.menuUrl},
+			</if>
+			<if test="bean.pId!=null">
+				 #{bean.pId},
+			</if>
+			<if test="bean.sort!=null">
+				 #{bean.sort},
+			</if>
+			<if test="bean.permissionCode!=null">
+				 #{bean.permissionCode},
+			</if>
+			<if test="bean.icon!=null">
+				 #{bean.icon},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.easyjob.entity.po.SysMenu">
+		 INSERT INTO sys_menu
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.menuId != null">
+				 menu_id,
+			</if>
+			<if test="bean.menuName != null">
+				 menu_name,
+			</if>
+			<if test="bean.menuType != null">
+				 menu_type,
+			</if>
+			<if test="bean.menuUrl != null">
+				 menu_url,
+			</if>
+			<if test="bean.pId != null">
+				 p_id,
+			</if>
+			<if test="bean.sort != null">
+				 sort,
+			</if>
+			<if test="bean.permissionCode != null">
+				 permission_code,
+			</if>
+			<if test="bean.icon != null">
+				 icon,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.menuId!=null">
+				 #{bean.menuId},
+			</if>
+			<if test="bean.menuName!=null">
+				 #{bean.menuName},
+			</if>
+			<if test="bean.menuType!=null">
+				 #{bean.menuType},
+			</if>
+			<if test="bean.menuUrl!=null">
+				 #{bean.menuUrl},
+			</if>
+			<if test="bean.pId!=null">
+				 #{bean.pId},
+			</if>
+			<if test="bean.sort!=null">
+				 #{bean.sort},
+			</if>
+			<if test="bean.permissionCode!=null">
+				 #{bean.permissionCode},
+			</if>
+			<if test="bean.icon!=null">
+				 #{bean.icon},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.menuId!=null">
+				 menu_id = VALUES(menu_id),
+			</if>
+			<if test="bean.menuName!=null">
+				 menu_name = VALUES(menu_name),
+			</if>
+			<if test="bean.menuType!=null">
+				 menu_type = VALUES(menu_type),
+			</if>
+			<if test="bean.menuUrl!=null">
+				 menu_url = VALUES(menu_url),
+			</if>
+			<if test="bean.pId!=null">
+				 p_id = VALUES(p_id),
+			</if>
+			<if test="bean.sort!=null">
+				 sort = VALUES(sort),
+			</if>
+			<if test="bean.permissionCode!=null">
+				 permission_code = VALUES(permission_code),
+			</if>
+			<if test="bean.icon!=null">
+				 icon = VALUES(icon),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.easyjob.entity.po.SysMenu">
+		 INSERT INTO sys_menu(
+			 menu_id,
+			 menu_name,
+			 menu_type,
+			 menu_url,
+			 p_id,
+			 sort,
+			 permission_code,
+			 icon
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.menuId},
+				 #{item.menuName},
+				 #{item.menuType},
+				 #{item.menuUrl},
+				 #{item.pId},
+				 #{item.sort},
+				 #{item.permissionCode},
+				 #{item.icon}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.easyjob.entity.po.SysMenu">
+		 INSERT INTO sys_menu(
+			 menu_id,
+			 menu_name,
+			 menu_type,
+			 menu_url,
+			 p_id,
+			 sort,
+			 permission_code,
+			 icon
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.menuId},
+				 #{item.menuName},
+				 #{item.menuType},
+				 #{item.menuUrl},
+				 #{item.pId},
+				 #{item.sort},
+				 #{item.permissionCode},
+				 #{item.icon}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			menu_id = VALUES(menu_id),
+			menu_name = VALUES(menu_name),
+			menu_type = VALUES(menu_type),
+			menu_url = VALUES(menu_url),
+			p_id = VALUES(p_id),
+			sort = VALUES(sort),
+			permission_code = VALUES(permission_code),
+			icon = VALUES(icon)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.easyjob.entity.query.SysMenuQuery">
+		 UPDATE sys_menu
+ 		 <set> 
+			<if test="bean.menuId != null">
+				 menu_id = #{bean.menuId},
+			</if>
+			<if test="bean.menuName != null">
+				 menu_name = #{bean.menuName},
+			</if>
+			<if test="bean.menuType != null">
+				 menu_type = #{bean.menuType},
+			</if>
+			<if test="bean.menuUrl != null">
+				 menu_url = #{bean.menuUrl},
+			</if>
+			<if test="bean.pId != null">
+				 p_id = #{bean.pId},
+			</if>
+			<if test="bean.sort != null">
+				 sort = #{bean.sort},
+			</if>
+			<if test="bean.permissionCode != null">
+				 permission_code = #{bean.permissionCode},
+			</if>
+			<if test="bean.icon != null">
+				 icon = #{bean.icon},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete from sys_menu
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据MenuId修改-->
+	<update id="updateByMenuId" parameterType="com.easyjob.entity.po.SysMenu">
+		 UPDATE sys_menu
+ 		 <set> 
+			<if test="bean.menuName != null">
+				 menu_name = #{bean.menuName},
+			</if>
+			<if test="bean.menuType != null">
+				 menu_type = #{bean.menuType},
+			</if>
+			<if test="bean.menuUrl != null">
+				 menu_url = #{bean.menuUrl},
+			</if>
+			<if test="bean.pId != null">
+				 p_id = #{bean.pId},
+			</if>
+			<if test="bean.sort != null">
+				 sort = #{bean.sort},
+			</if>
+			<if test="bean.permissionCode != null">
+				 permission_code = #{bean.permissionCode},
+			</if>
+			<if test="bean.icon != null">
+				 icon = #{bean.icon},
+			</if>
+ 		 </set>
+ 		 where menu_id=#{menuId}
+	</update>
+
+	<!-- 根据MenuId删除-->
+	<delete id="deleteByMenuId">
+		delete from sys_menu where menu_id=#{menuId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByMenuId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from sys_menu where menu_id=#{menuId}
+	</select>
+
+</mapper>

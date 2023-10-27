@@ -42,7 +42,14 @@ public class LoginController extends ABaseController {
         vCode.write(response.getOutputStream());
     }
 
-    // 登录
+    /***
+     * 登录
+     * @param session
+     * @param phone
+     * @param password
+     * @param checkCode
+     * @return
+     */
     @RequestMapping("/login")
     @GlobalInterceptor
     public ResponseVO login(HttpSession session, @VerifyParam(regex = VerifyRegexEnum.PHONE) String phone,
@@ -53,6 +60,6 @@ public class LoginController extends ABaseController {
         }
         SessionUserAdminDto userAdminDto =  sysAccountService.login(phone, password);
         session.setAttribute(Constants.SESSION_KEY,userAdminDto);
-        return getSuccessResponseVO(null);
+        return getSuccessResponseVO(userAdminDto);
     }
 }
