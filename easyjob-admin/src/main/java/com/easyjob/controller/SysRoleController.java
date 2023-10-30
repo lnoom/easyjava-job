@@ -2,6 +2,8 @@ package com.easyjob.controller;
 
 import java.util.List;
 
+import com.easyjob.annotation.GlobalInterceptor;
+import com.easyjob.annotation.VerifyParam;
 import com.easyjob.entity.query.SysRoleQuery;
 import com.easyjob.entity.po.SysRole;
 import com.easyjob.entity.vo.ResponseVO;
@@ -16,69 +18,79 @@ import javax.annotation.Resource;
  * 系统角色表 Controller
  */
 @RestController("sysRoleController")
-@RequestMapping("/sysRole")
-public class SysRoleController extends ABaseController{
+@RequestMapping("/settings")
+public class SysRoleController extends ABaseController {
 
-	@Resource
-	private SysRoleService sysRoleService;
-	/**
-	 * 根据条件分页查询
-	 */
-	@RequestMapping("/loadDataList")
-	public ResponseVO loadDataList(SysRoleQuery query){
-		return getSuccessResponseVO(sysRoleService.findListByPage(query));
-	}
+    @Resource
+    private SysRoleService sysRoleService;
 
-	/**
-	 * 新增
-	 */
-	@RequestMapping("/add")
-	public ResponseVO add(SysRole bean) {
-		sysRoleService.add(bean);
-		return getSuccessResponseVO(null);
-	}
+    /**
+     * 根据条件分页查询
+     */
+    @RequestMapping("/loadRoles")
+    @GlobalInterceptor
+    public ResponseVO loadRoles(SysRoleQuery query) {
+        query.setOrderBy("create_time desc");
+        return getSuccessResponseVO(sysRoleService.findListByPage(query));
+    }
 
-	/**
-	 * 批量新增
-	 */
-	@RequestMapping("/addBatch")
-	public ResponseVO addBatch(@RequestBody List<SysRole> listBean) {
-		sysRoleService.addBatch(listBean);
-		return getSuccessResponseVO(null);
-	}
+    /**
+     * 获取所有角色
+     */
+    @RequestMapping("/loadAllRoles")
+    @GlobalInterceptor
+    public ResponseVO loadAllRoles() {
+        SysRoleQuery query = new SysRoleQuery();
+        query.setOrderBy("create_time desc");
+        return getSuccessResponseVO(sysRoleService.findListByParam(query));
+    }
 
-	/**
-	 * 批量新增/修改
-	 */
-	@RequestMapping("/addOrUpdateBatch")
-	public ResponseVO addOrUpdateBatch(@RequestBody List<SysRole> listBean) {
-		sysRoleService.addBatch(listBean);
-		return getSuccessResponseVO(null);
-	}
 
-	/**
-	 * 根据RoleId查询对象
-	 */
-	@RequestMapping("/getSysRoleByRoleId")
-	public ResponseVO getSysRoleByRoleId(Integer roleId) {
-		return getSuccessResponseVO(sysRoleService.getSysRoleByRoleId(roleId));
-	}
+    /***
+     * 新增角色
+     * @param bean
+     * @param menuIds 权限菜单项
+     * @param halfMenuIds 全选/半选
+     * @return
+     */
+    @RequestMapping("/saveRole")
+    @GlobalInterceptor
+    public ResponseVO saveRole(@VerifyParam SysRole bean,
+                               String menuIds,
+                               String halfMenuIds) {
+        sysRoleService.saveRole(bean, menuIds, halfMenuIds);
+        return getSuccessResponseVO(null);
+    }
 
-	/**
-	 * 根据RoleId修改对象
-	 */
-	@RequestMapping("/updateSysRoleByRoleId")
-	public ResponseVO updateSysRoleByRoleId(SysRole bean,Integer roleId) {
-		sysRoleService.updateSysRoleByRoleId(bean,roleId);
-		return getSuccessResponseVO(null);
-	}
+    /***
+     * 保存角色菜单
+     */
+    @RequestMapping("/saveRoleMenu")
+    @GlobalInterceptor
+    public ResponseVO saveRoleMenu(@VerifyParam(required = true) Integer roleId,
+                                   @VerifyParam(required = true) String menuIds,
+                                   String halfMenuIds) {
+        sysRoleService.saveRoleMenu(roleId, menuIds, halfMenuIds);
+        return getSuccessResponseVO(null);
+    }
 
-	/**
-	 * 根据RoleId删除
-	 */
-	@RequestMapping("/deleteSysRoleByRoleId")
-	public ResponseVO deleteSysRoleByRoleId(Integer roleId) {
-		sysRoleService.deleteSysRoleByRoleId(roleId);
-		return getSuccessResponseVO(null);
-	}
+    /***
+     * 获取角色菜单
+     */
+    @RequestMapping("/getRoleByRoleId")
+    @GlobalInterceptor
+    public ResponseVO getRoleByRoleId(@VerifyParam(required = true) Integer roleId) {
+        SysRole sysRole = sysRoleService.getSysRoleByRoleId(roleId);
+        return getSuccessResponseVO(null);
+    }
+
+    /**
+     * 删除角色
+     */
+    @RequestMapping("/delRole")
+    @GlobalInterceptor
+    public ResponseVO delRole(@VerifyParam(required = true) Integer roleId) {
+        sysRoleService.deleteSysRoleByRoleId(roleId);
+        return getSuccessResponseVO(null);
+    }
 }

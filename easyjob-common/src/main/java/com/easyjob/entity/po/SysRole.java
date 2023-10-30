@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -45,6 +46,16 @@ public class SysRole implements Serializable {
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date lastUpdateTime;
 
+
+	private List<Integer> menuIds;
+
+	public List<Integer> getMenuIds() {
+		return menuIds;
+	}
+
+	public void setMenuIds(List<Integer> menuIds) {
+		this.menuIds = menuIds;
+	}
 
 	public void setRoleId(Integer roleId){
 		this.roleId = roleId;

@@ -69,4 +69,7 @@ public interface SysRoleService {
 	 */
 	Integer deleteSysRoleByRoleId(Integer roleId);
 
+	void saveRole(SysRole sysRole,String menuIds,String halfMenuIds);
+
+	void saveRoleMenu(Integer roleId,String menuIds,String halfMenuIds);
 }
