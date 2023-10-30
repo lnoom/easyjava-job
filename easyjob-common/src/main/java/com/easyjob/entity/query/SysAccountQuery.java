@@ -63,6 +63,15 @@ public class SysAccountQuery extends BaseParam {
 
 	private String createTimeEnd;
 
+	private Boolean queryRoles;
+
+	public Boolean getQueryRoles() {
+		return queryRoles;
+	}
+
+	public void setQueryRoles(Boolean queryRoles) {
+		this.queryRoles = queryRoles;
+	}
 
 	public void setUserId(Integer userId){
 		this.userId = userId;

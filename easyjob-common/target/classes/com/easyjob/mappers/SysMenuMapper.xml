@@ -377,4 +377,11 @@
 		select <include refid="base_column_list" /> from sys_menu where menu_id=#{menuId}
 	</select>
 
+	<select id="selectAllMenuByRoleIds" resultMap="base_result_map">
+		SELECT DISTINCT m.* FROM sys_menu m INNER JOIN sys_role_2_menu rm on m.menu_id=rm.menu_id WHERE rm.role_id in(
+		    <foreach collection="roleIds" separator="," item="item">
+				#{item}
+			</foreach>
+			)
+	</select>
 </mapper>

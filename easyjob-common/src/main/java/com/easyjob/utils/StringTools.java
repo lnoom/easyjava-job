@@ -1,5 +1,8 @@
 package com.easyjob.utils;
+
 import com.easyjob.exception.BusinessException;
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -49,5 +52,9 @@ public class StringTools {
             return true;
         }
         return false;
+    }
+
+    public static String encodeByMD5(String originString) {
+        return StringTools.isEmpty(originString) ? null : DigestUtils.md5Hex(originString);
     }
 }

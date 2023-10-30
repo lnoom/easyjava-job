@@ -217,8 +217,8 @@
     </select>
 
     <select id="selectMenuIdsByRoleIds" resultType="java.lang.Integer">
-        select menu_id from sys_role_2_menu where role_id in{
+        select menu_id from sys_role_2_menu where role_id in(
         <foreach collection="roleIds" separator="," item="item">#{item}</foreach>
-        } and check_type = 1
+        ) and check_type = 1
     </select>
 </mapper>

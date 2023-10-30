@@ -1,6 +1,7 @@
 package com.easyjob.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -159,6 +160,7 @@ public class SysMenuServiceImpl implements SysMenuService {
         return this.sysMenuMapper.deleteByMenuId(menuId);
     }
 
+    @Override
     public void saveMenu(SysMenu sysMenu) {
         if(sysMenu.getMenuId()==null){
             this.sysMenuMapper.insert(sysMenu);
@@ -166,5 +168,14 @@ public class SysMenuServiceImpl implements SysMenuService {
         else{
             this.sysMenuMapper.updateByMenuId(sysMenu,sysMenu.getMenuId());
         }
+    }
+
+    @Override
+    public List<SysMenu> getAllMenuByRoleIds(String roleIds) {
+        if(StringTools.isEmpty(roleIds)){
+            return new ArrayList<>();
+        }
+        int[] roleIdArray = Arrays.stream(roleIds.split(",")).mapToInt(Integer::valueOf).toArray();
+        return sysMenuMapper.selectAllMenuByRoleIds(roleIdArray);
     }
 }

@@ -93,14 +93,19 @@
 
 	<!-- 查询集合-->
 	<select id="selectList" resultMap="base_result_map" >
-		 SELECT <include refid="base_column_list" /> FROM sys_account <include refid="query_condition" />
-		 <if test="query.orderBy!=null">
-			 order by ${query.orderBy}
-		 </if>
-		 <if test="query.simplePage!=null">
-			 limit #{query.simplePage.start},#{query.simplePage.end}
-		 </if>
-	</select>
+        SELECT <include refid="base_column_list"/>
+        <if test="query.queryRoles!=null and query.queryRoles">
+			,(SELECT GROUP_CONCAT(role_name SEPARATOR ',') FROM sys_role WHERE FIND_IN_SET(role_id,roles) ) roleNames
+		</if>
+        FROM sys_account
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
 
 	<!-- 查询数量-->
 	<select id="selectCount" resultType="java.lang.Integer" >

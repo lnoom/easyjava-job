@@ -2,10 +2,14 @@ package com.easyjob.aspect;
 
 import com.easyjob.annotation.GlobalInterceptor;
 import com.easyjob.annotation.VerifyParam;
+import com.easyjob.entity.constants.Constants;
+import com.easyjob.entity.dto.SessionUserAdminDto;
+import com.easyjob.entity.enums.PermissionCodeEnum;
 import com.easyjob.entity.enums.ResponseCodeEnum;
 import com.easyjob.exception.BusinessException;
 import com.easyjob.utils.StringTools;
 import com.easyjob.utils.VerifyUtils;
+import com.mysql.cj.Session;
 import jdk.nashorn.internal.runtime.regexp.joni.constants.Arguments;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.util.ArrayUtil;
@@ -16,11 +20,18 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.condition.RequestConditionHolder;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.List;
 
 /***
  * aop 切面类
@@ -42,9 +53,40 @@ public class OperationAspect {
             return;
         }
 
+        /** 登录校验:13p 14min 5s */
+        if (interceptor.checkLogin()) {
+            checkLogin();
+        }
+
+        /** 校验权限 */
+        if (interceptor.permissionCode() != null && interceptor.permissionCode() != PermissionCodeEnum.NO_PERMISSION) {
+            checkPermission(interceptor.permissionCode());
+        }
+
         if (interceptor.checkParams()) {
             validateParams(method, arguments);
         }
+    }
+
+    /***
+     * 登录验证
+     */
+    void checkLogin() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        SessionUserAdminDto sessionUserAdminDto = (SessionUserAdminDto) request.getSession().getAttribute(Constants.SESSION_KEY);
+        if (sessionUserAdminDto == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_901); /** 登录超时 */
+        }
+    }
+
+    void checkPermission(PermissionCodeEnum permissionCodeEnum) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        SessionUserAdminDto sessionUserAdminDto = (SessionUserAdminDto) request.getSession().getAttribute(Constants.SESSION_KEY);
+        List<String> permissionCodeList = sessionUserAdminDto.getPermissionCodeList();
+        if (!permissionCodeList.contains(permissionCodeEnum.getCode())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_902);
+        }
+
     }
 
     /**
@@ -64,7 +106,7 @@ public class OperationAspect {
             if (ArrayUtils.contains(BASE_TYPE_ARRAY, paramTypeName)) {
                 checkValue(value, verifyParam);
             } else {
-                checkObjValue(parameter,value);
+                checkObjValue(parameter, value);
             }
         }
     }

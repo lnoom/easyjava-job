@@ -72,4 +72,6 @@ public interface SysMenuService {
 	List<SysMenu> convertLine2tree4Menu(List<SysMenu> datalist,Integer pid);
 
 	void saveMenu(SysMenu sysMenu);
+
+	List<SysMenu> getAllMenuByRoleIds(String roleIds);
 }

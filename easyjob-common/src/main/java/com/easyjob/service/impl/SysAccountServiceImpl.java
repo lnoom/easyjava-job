@@ -1,21 +1,23 @@
 package com.easyjob.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.easyjob.entity.config.AppConfig;
 import com.easyjob.entity.dto.SessionUserAdminDto;
-import com.easyjob.entity.enums.SysAccountStatusEnum;
+import com.easyjob.entity.enums.*;
 import com.easyjob.entity.po.SysMenu;
 import com.easyjob.entity.query.SysMenuQuery;
 import com.easyjob.entity.vo.SysMenuVO;
 import com.easyjob.exception.BusinessException;
 import com.easyjob.service.SysMenuService;
 import com.easyjob.utils.CopyTools;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 
-import com.easyjob.entity.enums.PageSize;
 import com.easyjob.entity.query.SysAccountQuery;
 import com.easyjob.entity.po.SysAccount;
 import com.easyjob.entity.vo.PaginationResultVO;
@@ -36,6 +38,9 @@ public class SysAccountServiceImpl implements SysAccountService {
 
     @Resource
     private SysMenuService sysMenuService;
+
+    @Resource
+    private AppConfig appConfig;
 
     /**
      * 根据条件查询列表
@@ -178,30 +183,68 @@ public class SysAccountServiceImpl implements SysAccountService {
             throw new BusinessException("账号或密码错误！");
         }
 
-        SysMenuQuery query = new SysMenuQuery();
-        query.setFormate2Tree(false);
-        query.setOrderBy("sort asc");
-        List<SysMenu> sysMenuList = sysMenuService.findListByParam(query);
+        SessionUserAdminDto adminDto = new SessionUserAdminDto();
 
+        adminDto.setUserid(sysAccount.getUserId());
+        adminDto.setUserName(sysAccount.getUserName());
+
+        List<SysMenu> allMenus = new ArrayList<>();
+        if (StringTools.isEmpty(appConfig.getSuperAdminPhones()) && ArrayUtils.contains(appConfig.getSuperAdminPhones().split(","), phone)) {
+            adminDto.setSuperAdmin(true);
+
+            SysMenuQuery query = new SysMenuQuery();
+            query.setFormate2Tree(false);
+            query.setOrderBy("sort asc");
+            allMenus = sysMenuService.findListByParam(query);
+        } else {
+            adminDto.setSuperAdmin(false);
+            allMenus = sysMenuService.getAllMenuByRoleIds(sysAccount.getRoles());
+        }
         List<String> permissionCodeList = new ArrayList<>();
-        sysMenuList.forEach(item -> {
-            permissionCodeList.add(item.getPermissionCode());
-        });
 
-        sysMenuList = sysMenuService.convertLine2tree4Menu(sysMenuList, 0);
+        List<SysMenu> menuList = new ArrayList<>();
+        for (SysMenu sysMenu : allMenus) {
+            if (MenuTypeEnum.MENU.getType().equals(sysMenu.getMenuType())) {
+                menuList.add(sysMenu);
+            }
+            permissionCodeList.add(sysMenu.getPermissionCode());
+        }
+
+        menuList = sysMenuService.convertLine2tree4Menu(menuList, 0);
+
+        if (menuList.isEmpty()) {
+            throw new BusinessException("请联系管理员分配角色");
+        }
+
         List<SysMenuVO> menuVOList = new ArrayList<>();
-        sysMenuList.forEach(item -> {
+        menuList.forEach(item -> {
             SysMenuVO menuVO = CopyTools.copy(item, SysMenuVO.class);
             menuVO.setChildren(CopyTools.copyList(item.getChildren(), SysMenuVO.class));
             menuVOList.add(menuVO);
         });
 
-        SessionUserAdminDto adminDto = new SessionUserAdminDto();
-        adminDto.setSuperAdmin(true);
-        adminDto.setUserid(sysAccount.getUserId());
-        adminDto.setUserName(sysAccount.getUserName());
         adminDto.setMenuList(menuVOList);
         adminDto.setPermissionCodeList(permissionCodeList);
         return adminDto;
+    }
+
+    @Override
+    public void saveSysAccount(SysAccount sysAccount) {
+        SysAccount phoneDb = sysAccountMapper.selectByPhone(sysAccount.getPhone());
+        /** 条件1：数据库没有，条件2：是添加账户而不是修改 */
+        if (phoneDb != null && (sysAccount.getUserId() == null || !phoneDb.getUserId().equals(sysAccount.getUserId()))) {
+            throw new BusinessException("手机号已存在！");
+        }
+        /** 新增*/
+        if (sysAccount.getUserId() == null) {
+            sysAccount.setCreateTime(new Date());
+            sysAccount.setStatus(UserStatusEnum.ENABLE.getStatus());
+            sysAccount.setPassword(StringTools.encodeByMD5(sysAccount.getPassword()));
+            this.sysAccountMapper.insert(sysAccount);
+        } else {
+            sysAccount.setPassword(null);
+            sysAccount.setStatus(null);
+            this.sysAccountMapper.updateByUserId(sysAccount, sysAccount.getUserId());
+        }
     }
 }
