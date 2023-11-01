@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.easyjob.annotation.GlobalInterceptor;
 import com.easyjob.annotation.VerifyParam;
+import com.easyjob.entity.enums.PermissionCodeEnum;
 import com.easyjob.entity.query.SysRoleQuery;
 import com.easyjob.entity.po.SysRole;
 import com.easyjob.entity.vo.ResponseVO;
@@ -28,7 +29,7 @@ public class SysRoleController extends ABaseController {
      * 根据条件分页查询
      */
     @RequestMapping("/loadRoles")
-    @GlobalInterceptor
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ROLE_LIST)
     public ResponseVO loadRoles(SysRoleQuery query) {
         query.setOrderBy("create_time desc");
         return getSuccessResponseVO(sysRoleService.findListByPage(query));
@@ -38,7 +39,7 @@ public class SysRoleController extends ABaseController {
      * 获取所有角色
      */
     @RequestMapping("/loadAllRoles")
-    @GlobalInterceptor
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ROLE_LIST)
     public ResponseVO loadAllRoles() {
         SysRoleQuery query = new SysRoleQuery();
         query.setOrderBy("create_time desc");
@@ -54,7 +55,7 @@ public class SysRoleController extends ABaseController {
      * @return
      */
     @RequestMapping("/saveRole")
-    @GlobalInterceptor
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ROLE_EDIT)
     public ResponseVO saveRole(@VerifyParam SysRole bean,
                                String menuIds,
                                String halfMenuIds) {
@@ -66,7 +67,7 @@ public class SysRoleController extends ABaseController {
      * 保存角色菜单
      */
     @RequestMapping("/saveRoleMenu")
-    @GlobalInterceptor
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ROLE_EDIT)
     public ResponseVO saveRoleMenu(@VerifyParam(required = true) Integer roleId,
                                    @VerifyParam(required = true) String menuIds,
                                    String halfMenuIds) {
@@ -78,7 +79,7 @@ public class SysRoleController extends ABaseController {
      * 获取角色菜单
      */
     @RequestMapping("/getRoleByRoleId")
-    @GlobalInterceptor
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ROLE_LIST)
     public ResponseVO getRoleByRoleId(@VerifyParam(required = true) Integer roleId) {
         SysRole sysRole = sysRoleService.getSysRoleByRoleId(roleId);
         return getSuccessResponseVO(null);
@@ -88,7 +89,7 @@ public class SysRoleController extends ABaseController {
      * 删除角色
      */
     @RequestMapping("/delRole")
-    @GlobalInterceptor
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ROLE_DEL)
     public ResponseVO delRole(@VerifyParam(required = true) Integer roleId) {
         sysRoleService.deleteSysRoleByRoleId(roleId);
         return getSuccessResponseVO(null);

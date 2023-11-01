@@ -53,7 +53,7 @@ public class OperationAspect {
             return;
         }
 
-        /** 登录校验:13p 14min 5s */
+        /** 登录校验 */
         if (interceptor.checkLogin()) {
             checkLogin();
         }
@@ -86,7 +86,6 @@ public class OperationAspect {
         if (!permissionCodeList.contains(permissionCodeEnum.getCode())) {
             throw new BusinessException(ResponseCodeEnum.CODE_902);
         }
-
     }
 
     /**

@@ -52,6 +52,7 @@ public class SysAccountController extends ABaseController {
      * 增加修改用户
      */
     @RequestMapping("/saveAccount")
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ACCOUNT_EDIT)
     public ResponseVO saveAccount(@VerifyParam SysAccount sysAccount) {
         sysAccountService.saveSysAccount(sysAccount);
         return getSuccessResponseVO(null);
@@ -61,6 +62,7 @@ public class SysAccountController extends ABaseController {
      * 修改密码
      */
     @RequestMapping("/updatePassword")
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ACCOUNT_UPDATE_PASSWORD)
     public ResponseVO updatePassword(@VerifyParam Integer userId,
                                      @VerifyParam(required = true, regex = VerifyRegexEnum.PASSWORD) String password) {
         SysAccount updateInfo = new SysAccount();
@@ -73,6 +75,7 @@ public class SysAccountController extends ABaseController {
      * 启用/禁用 账号
      */
     @RequestMapping("/updateStatus")
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ACCOUNT_OP_STATUS)
     public ResponseVO updateStatus(@VerifyParam Integer userId,
                                    @VerifyParam(required = true) Integer status) {
         UserStatusEnum userStatusEnum = UserStatusEnum.getByStatus(status);
@@ -89,6 +92,7 @@ public class SysAccountController extends ABaseController {
      * 删除
      */
     @RequestMapping("/delAccount")
+    @GlobalInterceptor(permissionCode = PermissionCodeEnum.SETTINGS_ACCOUNT_DEL)
     public ResponseVO delAccount(@VerifyParam Integer userId) {
         SysAccount sysAccount = this.sysAccountService.getSysAccountByUserId(userId);
         /** 配置项里的超级管理员(多个用,隔开)不能删除*/

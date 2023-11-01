@@ -26,5 +26,5 @@ public interface SysMenuMapper<T, P> extends BaseMapper<T, P> {
      */
     T selectByMenuId(@Param("menuId") Integer menuId);
 
-    List<T> selectAllMenuByRoleIds(@Param("rolesIds") int[] roleIds);
+    List<T> selectAllMenuByRoleIds(@Param("roleIds") int[] roleIds);
 }

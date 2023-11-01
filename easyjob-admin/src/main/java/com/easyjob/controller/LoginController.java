@@ -51,15 +51,44 @@ public class LoginController extends ABaseController {
      * @return
      */
     @RequestMapping("/login")
-    @GlobalInterceptor
-    public ResponseVO login(HttpSession session, @VerifyParam(regex = VerifyRegexEnum.PHONE) String phone,
+    @GlobalInterceptor(checkLogin = false)
+    public ResponseVO login(HttpSession session,
+                            @VerifyParam(regex = VerifyRegexEnum.PHONE) String phone,
                             @VerifyParam(required = true) String password,
                             @VerifyParam(required = true) String checkCode) {
         if (!checkCode.equalsIgnoreCase((String) session.getAttribute(Constants.CHECK_CODE_KEY))) {
             throw new BusinessException("图片验证码错误！");
         }
-        SessionUserAdminDto userAdminDto =  sysAccountService.login(phone, password);
-        session.setAttribute(Constants.SESSION_KEY,userAdminDto);
+        SessionUserAdminDto userAdminDto = sysAccountService.login(phone, password);
+        session.setAttribute(Constants.SESSION_KEY, userAdminDto);
         return getSuccessResponseVO(userAdminDto);
+    }
+
+    /***
+     * 退出登录
+     * @param session
+     * @return
+     */
+    @RequestMapping("/logout")
+    @GlobalInterceptor(checkLogin = false)
+    public ResponseVO logout(HttpSession session) {
+        session.invalidate();
+        return getSuccessResponseVO(null);
+    }
+
+    /***
+     * 修改密码
+     * @param session
+     * @return
+     */
+    @RequestMapping("/updateMyPwd")
+    @GlobalInterceptor
+    public ResponseVO updateMyPwd(HttpSession session,
+                                @VerifyParam(required = true, regex = VerifyRegexEnum.PASSWORD) String password) {
+        SessionUserAdminDto userAdminDto = getUserAdminFromSession(session);
+        SysAccount sysAccount = new SysAccount();
+        sysAccount.setPassword(StringTools.encodeByMD5(password));
+        sysAccountService.updateSysAccountByUserId(sysAccount, userAdminDto.getUserid());
+        return getSuccessResponseVO(null);
     }
 }

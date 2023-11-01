@@ -188,8 +188,9 @@ public class SysAccountServiceImpl implements SysAccountService {
         adminDto.setUserid(sysAccount.getUserId());
         adminDto.setUserName(sysAccount.getUserName());
 
-        List<SysMenu> allMenus = new ArrayList<>();
-        if (StringTools.isEmpty(appConfig.getSuperAdminPhones()) && ArrayUtils.contains(appConfig.getSuperAdminPhones().split(","), phone)) {
+
+        List<SysMenu> allMenus;
+        if (!StringTools.isEmpty(appConfig.getSuperAdminPhones()) && ArrayUtils.contains(appConfig.getSuperAdminPhones().split(","), phone)) {
             adminDto.setSuperAdmin(true);
 
             SysMenuQuery query = new SysMenuQuery();
@@ -198,6 +199,7 @@ public class SysAccountServiceImpl implements SysAccountService {
             allMenus = sysMenuService.findListByParam(query);
         } else {
             adminDto.setSuperAdmin(false);
+            /** 不是超级管理：根据角色来查菜单 */
             allMenus = sysMenuService.getAllMenuByRoleIds(sysAccount.getRoles());
         }
         List<String> permissionCodeList = new ArrayList<>();

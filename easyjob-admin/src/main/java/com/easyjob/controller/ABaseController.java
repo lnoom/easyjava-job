@@ -1,7 +1,13 @@
 package com.easyjob.controller;
+
+import com.easyjob.entity.constants.Constants;
+import com.easyjob.entity.dto.SessionUserAdminDto;
 import com.easyjob.entity.enums.ResponseCodeEnum;
 import com.easyjob.entity.vo.ResponseVO;
 import com.easyjob.exception.BusinessException;
+import com.mysql.cj.Session;
+
+import javax.servlet.http.HttpSession;
 
 
 public class ABaseController {
@@ -39,5 +45,10 @@ public class ABaseController {
         vo.setInfo(ResponseCodeEnum.CODE_500.getMsg());
         vo.setData(t);
         return vo;
+    }
+
+    protected SessionUserAdminDto getUserAdminFromSession(HttpSession session) {
+        SessionUserAdminDto sessionUserAdminDto = (SessionUserAdminDto) session.getAttribute(Constants.SESSION_KEY);
+        return sessionUserAdminDto;
     }
 }
