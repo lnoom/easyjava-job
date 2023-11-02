@@ -2,9 +2,11 @@ package com.easyjob.entity.vo;
 
 import com.easyjob.entity.po.SysMenu;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class SysMenuVO {
+public class SysMenuVO implements Serializable {
+    private static final long serialVersionUID = 851203620520311526L;
 
     /**
      * 菜单名

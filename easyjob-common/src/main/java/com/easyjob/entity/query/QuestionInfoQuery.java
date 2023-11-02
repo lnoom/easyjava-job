@@ -1,5 +1,7 @@
 package com.easyjob.entity.query;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import java.util.Date;
 
 
@@ -95,6 +97,25 @@ public class QuestionInfoQuery extends BaseParam {
 	 */
 	private Integer postUserType;
 
+	private Boolean queryTextContent;
+
+	private String[] questionIds;
+
+	public String[] getQuestionIds() {
+		return questionIds;
+	}
+
+	public void setQuestionIds(String[] questionIds) {
+		this.questionIds = questionIds;
+	}
+
+	public Boolean getQueryTextContent() {
+		return queryTextContent;
+	}
+
+	public void setQueryTextContent(Boolean queryTextContent) {
+		this.queryTextContent = queryTextContent;
+	}
 
 	public void setQuestionId(Integer questionId){
 		this.questionId = questionId;

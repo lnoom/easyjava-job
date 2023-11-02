@@ -4,13 +4,15 @@ package com.easyjob.entity.dto;
 import com.easyjob.entity.po.SysMenu;
 import com.easyjob.entity.vo.SysMenuVO;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /***
  * 用户session信息
  */
-public class SessionUserAdminDto {
+public class SessionUserAdminDto implements Serializable {
+    private static final long serialVersionUID = 1690149993220674991L;
 
     private Integer userid;
     private String userName;

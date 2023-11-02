@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easyjob.mappers.CategoryMapper">
+
+    <!--实体映射-->
+    <resultMap id="base_result_map" type="com.easyjob.entity.po.Category">
+        <!--分类id-->
+        <id column="category_id" property="categoryId"/>
+        <!--分类名称-->
+        <result column="category_name" property="categoryName"/>
+        <!--排序-->
+        <result column="sort" property="sort"/>
+        <!--图标-->
+        <result column="icon_path" property="iconPath"/>
+        <!--背景颜色-->
+        <result column="bg_color" property="bgColor"/>
+        <!--0：问题分类 1：考题分类 2：问题和考题分类-->
+        <result column="type" property="type"/>
+    </resultMap>
+
+
+    <!-- 通用查询结果列-->
+    <sql id="base_column_list">
+        category_id
+        ,category_name,sort,icon_path,bg_color,
+		 type
+    </sql>
+
+    <sql id="base_condition_filed">
+        <if test="query.categoryId != null">
+            and category_id = #{query.categoryId}
+        </if>
+        <if test="query.categoryName != null and query.categoryName!=''">
+            and category_name = #{query.categoryName}
+        </if>
+        <if test="query.sort != null">
+            and sort = #{query.sort}
+        </if>
+        <if test="query.iconPath != null and query.iconPath!=''">
+            and icon_path = #{query.iconPath}
+        </if>
+        <if test="query.bgColor != null and query.bgColor!=''">
+            and bg_color = #{query.bgColor}
+        </if>
+        <if test="query.type != null">
+            and type = #{query.type}
+        </if>
+    </sql>
+    <!-- 通用条件列-->
+    <sql id="base_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+        </where>
+    </sql>
+
+    <!-- 通用查询条件列-->
+    <sql id="query_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+            <if test="query.categoryNameFuzzy!= null  and query.categoryNameFuzzy!=''">
+                and category_name like concat('%', #{query.categoryNameFuzzy}, '%')
+            </if>
+            <if test="query.iconPathFuzzy!= null  and query.iconPathFuzzy!=''">
+                and icon_path like concat('%', #{query.iconPathFuzzy}, '%')
+            </if>
+            <if test="query.bgColorFuzzy!= null  and query.bgColorFuzzy!=''">
+                and bg_color like concat('%', #{query.bgColorFuzzy}, '%')
+            </if>
+            <if test="query.types!=null and query.types.length>0">
+                and type in (<foreach collection="query.types" separator="," item="item">#{item}</foreach>)
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询集合-->
+    <select id="selectList" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM category
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
+
+    <!-- 查询数量-->
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM category
+        <include refid="query_condition"/>
+    </select>
+
+    <!-- 插入 （匹配有值的字段）-->
+    <insert id="insert" parameterType="com.easyjob.entity.po.Category">
+        <selectKey keyProperty="bean.categoryId" resultType="Integer" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.categoryName != null">
+                category_name,
+            </if>
+            <if test="bean.sort != null">
+                sort,
+            </if>
+            <if test="bean.iconPath != null">
+                icon_path,
+            </if>
+            <if test="bean.bgColor != null">
+                bg_color,
+            </if>
+            <if test="bean.type != null">
+                type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.categoryName!=null">
+                #{bean.categoryName},
+            </if>
+            <if test="bean.sort!=null">
+                #{bean.sort},
+            </if>
+            <if test="bean.iconPath!=null">
+                #{bean.iconPath},
+            </if>
+            <if test="bean.bgColor!=null">
+                #{bean.bgColor},
+            </if>
+            <if test="bean.type!=null">
+                #{bean.type},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 插入或者更新 （匹配有值的字段）-->
+    <insert id="insertOrUpdate" parameterType="com.easyjob.entity.po.Category">
+        INSERT INTO category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.categoryId != null">
+                category_id,
+            </if>
+            <if test="bean.categoryName != null">
+                category_name,
+            </if>
+            <if test="bean.sort != null">
+                sort,
+            </if>
+            <if test="bean.iconPath != null">
+                icon_path,
+            </if>
+            <if test="bean.bgColor != null">
+                bg_color,
+            </if>
+            <if test="bean.type != null">
+                type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.categoryId!=null">
+                #{bean.categoryId},
+            </if>
+            <if test="bean.categoryName!=null">
+                #{bean.categoryName},
+            </if>
+            <if test="bean.sort!=null">
+                #{bean.sort},
+            </if>
+            <if test="bean.iconPath!=null">
+                #{bean.iconPath},
+            </if>
+            <if test="bean.bgColor!=null">
+                #{bean.bgColor},
+            </if>
+            <if test="bean.type!=null">
+                #{bean.type},
+            </if>
+        </trim>
+        on DUPLICATE key update
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="bean.categoryName!=null">
+                category_name = VALUES(category_name),
+            </if>
+            <if test="bean.sort!=null">
+                sort = VALUES(sort),
+            </if>
+            <if test="bean.iconPath!=null">
+                icon_path = VALUES(icon_path),
+            </if>
+            <if test="bean.bgColor!=null">
+                bg_color = VALUES(bg_color),
+            </if>
+            <if test="bean.type!=null">
+                type = VALUES(type),
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 添加 （批量插入）-->
+    <insert id="insertBatch" parameterType="com.easyjob.entity.po.Category" useGeneratedKeys="true"
+            keyProperty="categoryId">
+        INSERT INTO category(
+        category_name,
+        sort,
+        icon_path,
+        bg_color,
+        type
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.categoryName},
+            #{item.sort},
+            #{item.iconPath},
+            #{item.bgColor},
+            #{item.type}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 批量新增修改 （批量插入）-->
+    <insert id="insertOrUpdateBatch" parameterType="com.easyjob.entity.po.Category">
+        INSERT INTO category(
+        category_name,
+        sort,
+        icon_path,
+        bg_color,
+        type
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.categoryName},
+            #{item.sort},
+            #{item.iconPath},
+            #{item.bgColor},
+            #{item.type}
+            )
+        </foreach>
+        on DUPLICATE key update
+        category_name = VALUES(category_name),
+        sort = VALUES(sort),
+        icon_path = VALUES(icon_path),
+        bg_color = VALUES(bg_color),
+        type = VALUES(type)
+    </insert>
+
+    <!--多条件修改-->
+    <update id="updateByParam" parameterType="com.easyjob.entity.query.CategoryQuery">
+        UPDATE category
+        <set>
+            <if test="bean.categoryName != null">
+                category_name = #{bean.categoryName},
+            </if>
+            <if test="bean.sort != null">
+                sort = #{bean.sort},
+            </if>
+            <if test="bean.iconPath != null">
+                icon_path = #{bean.iconPath},
+            </if>
+            <if test="bean.bgColor != null">
+                bg_color = #{bean.bgColor},
+            </if>
+            <if test="bean.type != null">
+                type = #{bean.type},
+            </if>
+        </set>
+        <include refid="query_condition"/>
+    </update>
+
+    <!--多条件删除-->
+    <delete id="deleteByParam">
+        delete from category
+        <include refid="query_condition"/>
+    </delete>
+
+    <!-- 根据CategoryId修改-->
+    <update id="updateByCategoryId" parameterType="com.easyjob.entity.po.Category">
+        UPDATE category
+        <set>
+            <if test="bean.categoryName != null">
+                category_name = #{bean.categoryName},
+            </if>
+            <if test="bean.sort != null">
+                sort = #{bean.sort},
+            </if>
+            <if test="bean.iconPath != null">
+                icon_path = #{bean.iconPath},
+            </if>
+            <if test="bean.bgColor != null">
+                bg_color = #{bean.bgColor},
+            </if>
+            <if test="bean.type != null">
+                type = #{bean.type},
+            </if>
+        </set>
+        where category_id=#{categoryId}
+    </update>
+
+    <!-- 根据CategoryId删除-->
+    <delete id="deleteByCategoryId">
+        delete
+        from category
+        where category_id = #{categoryId}
+    </delete>
+
+    <!-- 根据PrimaryKey获取对象-->
+    <select id="selectByCategoryId" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from category where category_id=#{categoryId}
+    </select>
+
+    <!--	增加分类-->
+    <update id="updateCategoryName">
+        update exam_question
+        set category_name = #{categoryName}
+        where category_id = #{categoryId};
+        update question_info
+        set category_name = #{categoryName}
+        where category_id = #{categoryId};
+    </update>
+</mapper>

@@ -2,9 +2,11 @@ package com.easyjob.utils;
 
 import com.easyjob.exception.BusinessException;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 
 public class StringTools {
@@ -56,5 +58,37 @@ public class StringTools {
 
     public static String encodeByMD5(String originString) {
         return StringTools.isEmpty(originString) ? null : DigestUtils.md5Hex(originString);
+    }
+
+    /***
+     * 获取文件后缀
+     */
+    public static String getFileSuffix(String fileName) {
+        Integer index = fileName.lastIndexOf(".");
+        if (index == -1) {
+            return "";
+        }
+        String suffix = fileName.substring(index);
+        return suffix;
+    }
+
+    /***
+     * 生成一个随机数
+     */
+    public static String getRandomString(Integer count) {
+        return RandomStringUtils.random(count, true, true);
+    }
+
+    /***
+     * 安全风险：访问时可能会暴露其他文件
+     */
+    public static boolean pathIsOk(String path) {
+        if (StringTools.isEmpty(path)) {
+            return true;
+        }
+        if (path.contains("../") || path.contains("..\\")) {
+            return false;
+        }
+        return true;
     }
 }

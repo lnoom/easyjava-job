@@ -71,9 +71,9 @@ public class CategoryController extends ABaseController {
     /**
      * 根据类型加载所有分类
      */
-    @RequestMapping("/loadAllCategoryByType")
+    @RequestMapping("/loadAllCategory4Select")
     @GlobalInterceptor(permissionCode = PermissionCodeEnum.CATEGORY_LIST)
-    public ResponseVO loadAllCategoryByType(@VerifyParam(required = true) Integer type) {
+    public ResponseVO loadAllCategory4Select(@VerifyParam(required = true) Integer type) {
         List<Category> list = categoryService.loadAllCategoryByType(type);
         return getSuccessResponseVO(list);
     }

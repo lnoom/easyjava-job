@@ -5,24 +5,28 @@ import org.apache.ibatis.annotations.Param;
 /**
  * 问题表 数据库操作接口
  */
-public interface QuestionInfoMapper<T,P> extends BaseMapper<T,P> {
+public interface QuestionInfoMapper<T, P> extends BaseMapper<T, P> {
 
-	/**
-	 * 根据QuestionId更新
-	 */
-	 Integer updateByQuestionId(@Param("bean") T t,@Param("questionId") Integer questionId);
-
-
-	/**
-	 * 根据QuestionId删除
-	 */
-	 Integer deleteByQuestionId(@Param("questionId") Integer questionId);
+    /**
+     * 根据QuestionId更新
+     */
+    Integer updateByQuestionId(@Param("bean") T t, @Param("questionId") Integer questionId);
 
 
-	/**
-	 * 根据QuestionId获取对象
-	 */
-	 T selectByQuestionId(@Param("questionId") Integer questionId);
+    /**
+     * 根据QuestionId删除
+     */
+    Integer deleteByQuestionId(@Param("questionId") Integer questionId);
 
 
+    /**
+     * 根据QuestionId获取对象
+     */
+    T selectByQuestionId(@Param("questionId") Integer questionId);
+
+
+    /**
+     * 批量删除
+     */
+    void deleteBetchByQuestionId(@Param("questioinIdArray") String[] questionIdArray, @Param("status") Integer status, @Param("userId") Integer userId);
 }

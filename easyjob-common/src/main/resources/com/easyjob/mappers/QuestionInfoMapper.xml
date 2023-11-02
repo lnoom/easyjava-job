@@ -38,10 +38,11 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="base_column_list">
-		 question_id,title,category_id,category_name,difficulty_level,
-		 question,answer_analysis,create_time,status,create_user_id,
+        question_id
+        ,title,category_id,category_name,difficulty_level,
+		     create_time,status,create_user_id,
 		 create_user_name,read_count,collect_count,post_user_type
-	</sql>
+    </sql>
 
 	<sql id="base_condition_filed">
 			<if test="query.questionId != null">
@@ -96,45 +97,53 @@
 
 	<!-- 通用查询条件列-->
 	<sql id="query_condition">
-	 <where>
-			<include refid="base_condition_filed" />
-			<if test="query.titleFuzzy!= null  and query.titleFuzzy!=''">
-				 and  title like concat('%', #{query.titleFuzzy}, '%')
-			</if>
-			<if test="query.categoryNameFuzzy!= null  and query.categoryNameFuzzy!=''">
-				 and  category_name like concat('%', #{query.categoryNameFuzzy}, '%')
-			</if>
-			<if test="query.questionFuzzy!= null  and query.questionFuzzy!=''">
-				 and  question like concat('%', #{query.questionFuzzy}, '%')
-			</if>
-			<if test="query.answerAnalysisFuzzy!= null  and query.answerAnalysisFuzzy!=''">
-				 and  answer_analysis like concat('%', #{query.answerAnalysisFuzzy}, '%')
-			</if>
-			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
-				 <![CDATA[ and  create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
-			</if>
-			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
-				 <![CDATA[ and  create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
-			</if>
-			<if test="query.createUserIdFuzzy!= null  and query.createUserIdFuzzy!=''">
-				 and  create_user_id like concat('%', #{query.createUserIdFuzzy}, '%')
-			</if>
-			<if test="query.createUserNameFuzzy!= null  and query.createUserNameFuzzy!=''">
-				 and  create_user_name like concat('%', #{query.createUserNameFuzzy}, '%')
-			</if>
-	 </where>
-	</sql>
+        <where>
+            <include refid="base_condition_filed"/>
+            <if test="query.titleFuzzy!= null  and query.titleFuzzy!=''">
+                and title like concat('%', #{query.titleFuzzy}, '%')
+            </if>
+            <if test="query.categoryNameFuzzy!= null  and query.categoryNameFuzzy!=''">
+                and category_name like concat('%', #{query.categoryNameFuzzy}, '%')
+            </if>
+            <if test="query.questionFuzzy!= null  and query.questionFuzzy!=''">
+                and question like concat('%', #{query.questionFuzzy}, '%')
+            </if>
+            <if test="query.answerAnalysisFuzzy!= null  and query.answerAnalysisFuzzy!=''">
+                and answer_analysis like concat('%', #{query.answerAnalysisFuzzy}, '%')
+            </if>
+            <if test="query.createTimeStart!= null and query.createTimeStart!=''">
+                <![CDATA[ and  create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+                <![CDATA[ and  create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+            </if>
+            <if test="query.createUserIdFuzzy!= null  and query.createUserIdFuzzy!=''">
+                and create_user_id like concat('%', #{query.createUserIdFuzzy}, '%')
+            </if>
+            <if test="query.createUserNameFuzzy!= null  and query.createUserNameFuzzy!=''">
+                and create_user_name like concat('%', #{query.createUserNameFuzzy}, '%')
+            </if>
+            <if test="query.questionIds!=null and query.questionIds.length>0">
+                and question_id in(<foreach collection="query.questionIds" separator="," item="item">#{item}</foreach> )
+            </if>
+        </where>
+    </sql>
 
 	<!-- 查询集合-->
 	<select id="selectList" resultMap="base_result_map" >
-		 SELECT <include refid="base_column_list" /> FROM question_info <include refid="query_condition" />
-		 <if test="query.orderBy!=null">
-			 order by ${query.orderBy}
-		 </if>
-		 <if test="query.simplePage!=null">
-			 limit #{query.simplePage.start},#{query.simplePage.end}
-		 </if>
-	</select>
+        SELECT <include refid="base_column_list"/>
+		<if test="query.queryTextContent">
+			,question,answer_analysis
+		</if>
+        FROM question_info
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
 
 	<!-- 查询数量-->
 	<select id="selectCount" resultType="java.lang.Integer" >
@@ -562,4 +571,12 @@
 		select <include refid="base_column_list" /> from question_info where question_id=#{questionId}
 	</select>
 
+	<delete id="deleteBetchByQuestionId">
+        delete
+        from question_info where status = #{status}
+        and question_id in(<foreach collection="questionArray" separator="," item="item">#{item}</foreach>)
+        <if test="userId!=null">
+            and create_user_id = #{userId}
+        </if>
+    </delete>
 </mapper>
