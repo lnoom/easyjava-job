@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easyjob.mappers.ShareInfoMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.easyjob.entity.po.ShareInfo">
+		<!--分享id-->
+		<id column="share_id" property="shareId"  />
+		<!--标题-->
+		<result column="title" property="title"  />
+		<!--0：无封面 1：横幅 2：小图标-->
+		<result column="cover_type" property="coverType"  />
+		<!--封面路径-->
+		<result column="cover_path" property="coverPath"  />
+		<!--内容-->
+		<result column="content" property="content"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--0：未发布 1：已发布-->
+		<result column="status" property="status"  />
+		<!--用户id-->
+		<result column="create_user_id" property="createUserId"  />
+		<!--用户名-->
+		<result column="create_user_name" property="createUserName"  />
+		<!--阅读数量-->
+		<result column="read_count" property="readCount"  />
+		<!--收藏数-->
+		<result column="collect_count" property="collectCount"  />
+		<!--0：内部 1：外部-->
+		<result column="post_user_type" property="postUserType"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 share_id,title,cover_type,cover_path,content,
+		 create_time,status,create_user_id,create_user_name,read_count,
+		 collect_count,post_user_type
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.shareId != null">
+				 and  share_id = #{query.shareId}
+			</if>
+			<if test="query.title != null and query.title!=''">
+				 and  title = #{query.title}
+			</if>
+			<if test="query.coverType != null">
+				 and  cover_type = #{query.coverType}
+			</if>
+			<if test="query.coverPath != null and query.coverPath!=''">
+				 and  cover_path = #{query.coverPath}
+			</if>
+			<if test="query.content != null and query.content!=''">
+				 and  content = #{query.content}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.status != null">
+				 and  status = #{query.status}
+			</if>
+			<if test="query.createUserId != null and query.createUserId!=''">
+				 and  create_user_id = #{query.createUserId}
+			</if>
+			<if test="query.createUserName != null and query.createUserName!=''">
+				 and  create_user_name = #{query.createUserName}
+			</if>
+			<if test="query.readCount != null">
+				 and  read_count = #{query.readCount}
+			</if>
+			<if test="query.collectCount != null">
+				 and  collect_count = #{query.collectCount}
+			</if>
+			<if test="query.postUserType != null">
+				 and  post_user_type = #{query.postUserType}
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.titleFuzzy!= null  and query.titleFuzzy!=''">
+				 and  title like concat('%', #{query.titleFuzzy}, '%')
+			</if>
+			<if test="query.coverPathFuzzy!= null  and query.coverPathFuzzy!=''">
+				 and  cover_path like concat('%', #{query.coverPathFuzzy}, '%')
+			</if>
+			<if test="query.contentFuzzy!= null  and query.contentFuzzy!=''">
+				 and  content like concat('%', #{query.contentFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.createUserIdFuzzy!= null  and query.createUserIdFuzzy!=''">
+				 and  create_user_id like concat('%', #{query.createUserIdFuzzy}, '%')
+			</if>
+			<if test="query.createUserNameFuzzy!= null  and query.createUserNameFuzzy!=''">
+				 and  create_user_name like concat('%', #{query.createUserNameFuzzy}, '%')
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM share_info <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM share_info <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.easyjob.entity.po.ShareInfo">
+		<selectKey keyProperty="bean.shareId" resultType="Integer" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		 INSERT INTO share_info
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.title != null">
+				 title,
+			</if>
+			<if test="bean.coverType != null">
+				 cover_type,
+			</if>
+			<if test="bean.coverPath != null">
+				 cover_path,
+			</if>
+			<if test="bean.content != null">
+				 content,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id,
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name,
+			</if>
+			<if test="bean.readCount != null">
+				 read_count,
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count,
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.title!=null">
+				 #{bean.title},
+			</if>
+			<if test="bean.coverType!=null">
+				 #{bean.coverType},
+			</if>
+			<if test="bean.coverPath!=null">
+				 #{bean.coverPath},
+			</if>
+			<if test="bean.content!=null">
+				 #{bean.content},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createUserId!=null">
+				 #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName!=null">
+				 #{bean.createUserName},
+			</if>
+			<if test="bean.readCount!=null">
+				 #{bean.readCount},
+			</if>
+			<if test="bean.collectCount!=null">
+				 #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType!=null">
+				 #{bean.postUserType},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.easyjob.entity.po.ShareInfo">
+		 INSERT INTO share_info
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.shareId != null">
+				 share_id,
+			</if>
+			<if test="bean.title != null">
+				 title,
+			</if>
+			<if test="bean.coverType != null">
+				 cover_type,
+			</if>
+			<if test="bean.coverPath != null">
+				 cover_path,
+			</if>
+			<if test="bean.content != null">
+				 content,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id,
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name,
+			</if>
+			<if test="bean.readCount != null">
+				 read_count,
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count,
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.shareId!=null">
+				 #{bean.shareId},
+			</if>
+			<if test="bean.title!=null">
+				 #{bean.title},
+			</if>
+			<if test="bean.coverType!=null">
+				 #{bean.coverType},
+			</if>
+			<if test="bean.coverPath!=null">
+				 #{bean.coverPath},
+			</if>
+			<if test="bean.content!=null">
+				 #{bean.content},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createUserId!=null">
+				 #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName!=null">
+				 #{bean.createUserName},
+			</if>
+			<if test="bean.readCount!=null">
+				 #{bean.readCount},
+			</if>
+			<if test="bean.collectCount!=null">
+				 #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType!=null">
+				 #{bean.postUserType},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.title!=null">
+				 title = VALUES(title),
+			</if>
+			<if test="bean.coverType!=null">
+				 cover_type = VALUES(cover_type),
+			</if>
+			<if test="bean.coverPath!=null">
+				 cover_path = VALUES(cover_path),
+			</if>
+			<if test="bean.content!=null">
+				 content = VALUES(content),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.createUserId!=null">
+				 create_user_id = VALUES(create_user_id),
+			</if>
+			<if test="bean.createUserName!=null">
+				 create_user_name = VALUES(create_user_name),
+			</if>
+			<if test="bean.readCount!=null">
+				 read_count = VALUES(read_count),
+			</if>
+			<if test="bean.collectCount!=null">
+				 collect_count = VALUES(collect_count),
+			</if>
+			<if test="bean.postUserType!=null">
+				 post_user_type = VALUES(post_user_type),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.easyjob.entity.po.ShareInfo" useGeneratedKeys="true" keyProperty="shareId">
+		 INSERT INTO share_info(
+			 title,
+			 cover_type,
+			 cover_path,
+			 content,
+			 create_time,
+			 status,
+			 create_user_id,
+			 create_user_name,
+			 read_count,
+			 collect_count,
+			 post_user_type
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.title},
+				 #{item.coverType},
+				 #{item.coverPath},
+				 #{item.content},
+				 #{item.createTime},
+				 #{item.status},
+				 #{item.createUserId},
+				 #{item.createUserName},
+				 #{item.readCount},
+				 #{item.collectCount},
+				 #{item.postUserType}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.easyjob.entity.po.ShareInfo">
+		 INSERT INTO share_info(
+			 title,
+			 cover_type,
+			 cover_path,
+			 content,
+			 create_time,
+			 status,
+			 create_user_id,
+			 create_user_name,
+			 read_count,
+			 collect_count,
+			 post_user_type
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.title},
+				 #{item.coverType},
+				 #{item.coverPath},
+				 #{item.content},
+				 #{item.createTime},
+				 #{item.status},
+				 #{item.createUserId},
+				 #{item.createUserName},
+				 #{item.readCount},
+				 #{item.collectCount},
+				 #{item.postUserType}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			title = VALUES(title),
+			cover_type = VALUES(cover_type),
+			cover_path = VALUES(cover_path),
+			content = VALUES(content),
+			create_time = VALUES(create_time),
+			status = VALUES(status),
+			create_user_id = VALUES(create_user_id),
+			create_user_name = VALUES(create_user_name),
+			read_count = VALUES(read_count),
+			collect_count = VALUES(collect_count),
+			post_user_type = VALUES(post_user_type)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.easyjob.entity.query.ShareInfoQuery">
+		 UPDATE share_info
+ 		 <set> 
+			<if test="bean.title != null">
+				 title = #{bean.title},
+			</if>
+			<if test="bean.coverType != null">
+				 cover_type = #{bean.coverType},
+			</if>
+			<if test="bean.coverPath != null">
+				 cover_path = #{bean.coverPath},
+			</if>
+			<if test="bean.content != null">
+				 content = #{bean.content},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id = #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name = #{bean.createUserName},
+			</if>
+			<if test="bean.readCount != null">
+				 read_count = #{bean.readCount},
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count = #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type = #{bean.postUserType},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete from share_info
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据ShareId修改-->
+	<update id="updateByShareId" parameterType="com.easyjob.entity.po.ShareInfo">
+		 UPDATE share_info
+ 		 <set> 
+			<if test="bean.title != null">
+				 title = #{bean.title},
+			</if>
+			<if test="bean.coverType != null">
+				 cover_type = #{bean.coverType},
+			</if>
+			<if test="bean.coverPath != null">
+				 cover_path = #{bean.coverPath},
+			</if>
+			<if test="bean.content != null">
+				 content = #{bean.content},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id = #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name = #{bean.createUserName},
+			</if>
+			<if test="bean.readCount != null">
+				 read_count = #{bean.readCount},
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count = #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type = #{bean.postUserType},
+			</if>
+ 		 </set>
+ 		 where share_id=#{shareId}
+	</update>
+
+	<!-- 根据ShareId删除-->
+	<delete id="deleteByShareId">
+		delete from share_info where share_id=#{shareId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByShareId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from share_info where share_id=#{shareId}
+	</select>
+
+</mapper>

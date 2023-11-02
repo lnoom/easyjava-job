@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easyjob.mappers.QuestionInfoMapper">
+
+	<!--实体映射-->
+	<resultMap id="base_result_map" type="com.easyjob.entity.po.QuestionInfo">
+		<!--id-->
+		<id column="question_id" property="questionId"  />
+		<!--标题-->
+		<result column="title" property="title"  />
+		<!--分类id-->
+		<result column="category_id" property="categoryId"  />
+		<!--分类名称-->
+		<result column="category_name" property="categoryName"  />
+		<!--难度-->
+		<result column="difficulty_level" property="difficultyLevel"  />
+		<!--问题描述-->
+		<result column="question" property="question"  />
+		<!--回答解释-->
+		<result column="answer_analysis" property="answerAnalysis"  />
+		<!--创建时间-->
+		<result column="create_time" property="createTime"  />
+		<!--0：未发布 1：已发布-->
+		<result column="status" property="status"  />
+		<!--用户id-->
+		<result column="create_user_id" property="createUserId"  />
+		<!--姓名-->
+		<result column="create_user_name" property="createUserName"  />
+		<!--阅读数量-->
+		<result column="read_count" property="readCount"  />
+		<!--收藏数-->
+		<result column="collect_count" property="collectCount"  />
+		<!--0：内部 1：外部投稿-->
+		<result column="post_user_type" property="postUserType"  />
+	</resultMap>
+
+
+	<!-- 通用查询结果列-->
+	<sql id="base_column_list">
+		 question_id,title,category_id,category_name,difficulty_level,
+		 question,answer_analysis,create_time,status,create_user_id,
+		 create_user_name,read_count,collect_count,post_user_type
+	</sql>
+
+	<sql id="base_condition_filed">
+			<if test="query.questionId != null">
+				 and  question_id = #{query.questionId}
+			</if>
+			<if test="query.title != null and query.title!=''">
+				 and  title = #{query.title}
+			</if>
+			<if test="query.categoryId != null">
+				 and  category_id = #{query.categoryId}
+			</if>
+			<if test="query.categoryName != null and query.categoryName!=''">
+				 and  category_name = #{query.categoryName}
+			</if>
+			<if test="query.difficultyLevel != null">
+				 and  difficulty_level = #{query.difficultyLevel}
+			</if>
+			<if test="query.question != null and query.question!=''">
+				 and  question = #{query.question}
+			</if>
+			<if test="query.answerAnalysis != null and query.answerAnalysis!=''">
+				 and  answer_analysis = #{query.answerAnalysis}
+			</if>
+			<if test="query.createTime != null and query.createTime!=''">
+				 <![CDATA[ and  create_time=str_to_date(#{query.createTime}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.status != null">
+				 and  status = #{query.status}
+			</if>
+			<if test="query.createUserId != null and query.createUserId!=''">
+				 and  create_user_id = #{query.createUserId}
+			</if>
+			<if test="query.createUserName != null and query.createUserName!=''">
+				 and  create_user_name = #{query.createUserName}
+			</if>
+			<if test="query.readCount != null">
+				 and  read_count = #{query.readCount}
+			</if>
+			<if test="query.collectCount != null">
+				 and  collect_count = #{query.collectCount}
+			</if>
+			<if test="query.postUserType != null">
+				 and  post_user_type = #{query.postUserType}
+			</if>
+	</sql>
+	<!-- 通用条件列-->
+	<sql id="base_condition">
+	 <where>
+		 <include refid="base_condition_filed" />
+	 </where>
+	</sql>
+
+	<!-- 通用查询条件列-->
+	<sql id="query_condition">
+	 <where>
+			<include refid="base_condition_filed" />
+			<if test="query.titleFuzzy!= null  and query.titleFuzzy!=''">
+				 and  title like concat('%', #{query.titleFuzzy}, '%')
+			</if>
+			<if test="query.categoryNameFuzzy!= null  and query.categoryNameFuzzy!=''">
+				 and  category_name like concat('%', #{query.categoryNameFuzzy}, '%')
+			</if>
+			<if test="query.questionFuzzy!= null  and query.questionFuzzy!=''">
+				 and  question like concat('%', #{query.questionFuzzy}, '%')
+			</if>
+			<if test="query.answerAnalysisFuzzy!= null  and query.answerAnalysisFuzzy!=''">
+				 and  answer_analysis like concat('%', #{query.answerAnalysisFuzzy}, '%')
+			</if>
+			<if test="query.createTimeStart!= null and query.createTimeStart!=''">
+				 <![CDATA[ and  create_time>=str_to_date(#{query.createTimeStart}, '%Y-%m-%d') ]]>
+			</if>
+			<if test="query.createTimeEnd!= null and query.createTimeEnd!=''">
+				 <![CDATA[ and  create_time< date_sub(str_to_date(#{query.createTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+			</if>
+			<if test="query.createUserIdFuzzy!= null  and query.createUserIdFuzzy!=''">
+				 and  create_user_id like concat('%', #{query.createUserIdFuzzy}, '%')
+			</if>
+			<if test="query.createUserNameFuzzy!= null  and query.createUserNameFuzzy!=''">
+				 and  create_user_name like concat('%', #{query.createUserNameFuzzy}, '%')
+			</if>
+	 </where>
+	</sql>
+
+	<!-- 查询集合-->
+	<select id="selectList" resultMap="base_result_map" >
+		 SELECT <include refid="base_column_list" /> FROM question_info <include refid="query_condition" />
+		 <if test="query.orderBy!=null">
+			 order by ${query.orderBy}
+		 </if>
+		 <if test="query.simplePage!=null">
+			 limit #{query.simplePage.start},#{query.simplePage.end}
+		 </if>
+	</select>
+
+	<!-- 查询数量-->
+	<select id="selectCount" resultType="java.lang.Integer" >
+		 SELECT count(1) FROM question_info <include refid="query_condition" />
+	</select>
+
+	<!-- 插入 （匹配有值的字段）-->
+	<insert id="insert" parameterType="com.easyjob.entity.po.QuestionInfo">
+		<selectKey keyProperty="bean.questionId" resultType="Integer" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		 INSERT INTO question_info
+		 <trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="bean.title != null">
+				 title,
+			</if>
+			<if test="bean.categoryId != null">
+				 category_id,
+			</if>
+			<if test="bean.categoryName != null">
+				 category_name,
+			</if>
+			<if test="bean.difficultyLevel != null">
+				 difficulty_level,
+			</if>
+			<if test="bean.question != null">
+				 question,
+			</if>
+			<if test="bean.answerAnalysis != null">
+				 answer_analysis,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id,
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name,
+			</if>
+			<if test="bean.readCount != null">
+				 read_count,
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count,
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="bean.title!=null">
+				 #{bean.title},
+			</if>
+			<if test="bean.categoryId!=null">
+				 #{bean.categoryId},
+			</if>
+			<if test="bean.categoryName!=null">
+				 #{bean.categoryName},
+			</if>
+			<if test="bean.difficultyLevel!=null">
+				 #{bean.difficultyLevel},
+			</if>
+			<if test="bean.question!=null">
+				 #{bean.question},
+			</if>
+			<if test="bean.answerAnalysis!=null">
+				 #{bean.answerAnalysis},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createUserId!=null">
+				 #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName!=null">
+				 #{bean.createUserName},
+			</if>
+			<if test="bean.readCount!=null">
+				 #{bean.readCount},
+			</if>
+			<if test="bean.collectCount!=null">
+				 #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType!=null">
+				 #{bean.postUserType},
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 插入或者更新 （匹配有值的字段）-->
+	<insert id="insertOrUpdate" parameterType="com.easyjob.entity.po.QuestionInfo">
+		 INSERT INTO question_info
+		 <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="bean.questionId != null">
+				 question_id,
+			</if>
+			<if test="bean.title != null">
+				 title,
+			</if>
+			<if test="bean.categoryId != null">
+				 category_id,
+			</if>
+			<if test="bean.categoryName != null">
+				 category_name,
+			</if>
+			<if test="bean.difficultyLevel != null">
+				 difficulty_level,
+			</if>
+			<if test="bean.question != null">
+				 question,
+			</if>
+			<if test="bean.answerAnalysis != null">
+				 answer_analysis,
+			</if>
+			<if test="bean.createTime != null">
+				 create_time,
+			</if>
+			<if test="bean.status != null">
+				 status,
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id,
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name,
+			</if>
+			<if test="bean.readCount != null">
+				 read_count,
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count,
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type,
+			</if>
+		 </trim>
+		 <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="bean.questionId!=null">
+				 #{bean.questionId},
+			</if>
+			<if test="bean.title!=null">
+				 #{bean.title},
+			</if>
+			<if test="bean.categoryId!=null">
+				 #{bean.categoryId},
+			</if>
+			<if test="bean.categoryName!=null">
+				 #{bean.categoryName},
+			</if>
+			<if test="bean.difficultyLevel!=null">
+				 #{bean.difficultyLevel},
+			</if>
+			<if test="bean.question!=null">
+				 #{bean.question},
+			</if>
+			<if test="bean.answerAnalysis!=null">
+				 #{bean.answerAnalysis},
+			</if>
+			<if test="bean.createTime!=null">
+				 #{bean.createTime},
+			</if>
+			<if test="bean.status!=null">
+				 #{bean.status},
+			</if>
+			<if test="bean.createUserId!=null">
+				 #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName!=null">
+				 #{bean.createUserName},
+			</if>
+			<if test="bean.readCount!=null">
+				 #{bean.readCount},
+			</if>
+			<if test="bean.collectCount!=null">
+				 #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType!=null">
+				 #{bean.postUserType},
+			</if>
+		 </trim>
+		 on DUPLICATE key update 
+		 <trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.title!=null">
+				 title = VALUES(title),
+			</if>
+			<if test="bean.categoryId!=null">
+				 category_id = VALUES(category_id),
+			</if>
+			<if test="bean.categoryName!=null">
+				 category_name = VALUES(category_name),
+			</if>
+			<if test="bean.difficultyLevel!=null">
+				 difficulty_level = VALUES(difficulty_level),
+			</if>
+			<if test="bean.question!=null">
+				 question = VALUES(question),
+			</if>
+			<if test="bean.answerAnalysis!=null">
+				 answer_analysis = VALUES(answer_analysis),
+			</if>
+			<if test="bean.createTime!=null">
+				 create_time = VALUES(create_time),
+			</if>
+			<if test="bean.status!=null">
+				 status = VALUES(status),
+			</if>
+			<if test="bean.createUserId!=null">
+				 create_user_id = VALUES(create_user_id),
+			</if>
+			<if test="bean.createUserName!=null">
+				 create_user_name = VALUES(create_user_name),
+			</if>
+			<if test="bean.readCount!=null">
+				 read_count = VALUES(read_count),
+			</if>
+			<if test="bean.collectCount!=null">
+				 collect_count = VALUES(collect_count),
+			</if>
+			<if test="bean.postUserType!=null">
+				 post_user_type = VALUES(post_user_type),
+			</if>
+		 </trim>
+	</insert>
+
+	<!-- 添加 （批量插入）-->
+	<insert id="insertBatch" parameterType="com.easyjob.entity.po.QuestionInfo" useGeneratedKeys="true" keyProperty="questionId">
+		 INSERT INTO question_info(
+			 title,
+			 category_id,
+			 category_name,
+			 difficulty_level,
+			 question,
+			 answer_analysis,
+			 create_time,
+			 status,
+			 create_user_id,
+			 create_user_name,
+			 read_count,
+			 collect_count,
+			 post_user_type
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.title},
+				 #{item.categoryId},
+				 #{item.categoryName},
+				 #{item.difficultyLevel},
+				 #{item.question},
+				 #{item.answerAnalysis},
+				 #{item.createTime},
+				 #{item.status},
+				 #{item.createUserId},
+				 #{item.createUserName},
+				 #{item.readCount},
+				 #{item.collectCount},
+				 #{item.postUserType}
+			 )
+		 </foreach>
+	</insert>
+
+	<!-- 批量新增修改 （批量插入）-->
+	<insert id="insertOrUpdateBatch" parameterType="com.easyjob.entity.po.QuestionInfo">
+		 INSERT INTO question_info(
+			 title,
+			 category_id,
+			 category_name,
+			 difficulty_level,
+			 question,
+			 answer_analysis,
+			 create_time,
+			 status,
+			 create_user_id,
+			 create_user_name,
+			 read_count,
+			 collect_count,
+			 post_user_type
+		 )values
+		 <foreach collection="list" item="item" separator=",">
+			 (
+				 #{item.title},
+				 #{item.categoryId},
+				 #{item.categoryName},
+				 #{item.difficultyLevel},
+				 #{item.question},
+				 #{item.answerAnalysis},
+				 #{item.createTime},
+				 #{item.status},
+				 #{item.createUserId},
+				 #{item.createUserName},
+				 #{item.readCount},
+				 #{item.collectCount},
+				 #{item.postUserType}
+			 )
+		 </foreach>
+			on DUPLICATE key update 
+			title = VALUES(title),
+			category_id = VALUES(category_id),
+			category_name = VALUES(category_name),
+			difficulty_level = VALUES(difficulty_level),
+			question = VALUES(question),
+			answer_analysis = VALUES(answer_analysis),
+			create_time = VALUES(create_time),
+			status = VALUES(status),
+			create_user_id = VALUES(create_user_id),
+			create_user_name = VALUES(create_user_name),
+			read_count = VALUES(read_count),
+			collect_count = VALUES(collect_count),
+			post_user_type = VALUES(post_user_type)
+	</insert>
+
+	<!--多条件修改-->
+	<update id="updateByParam" parameterType="com.easyjob.entity.query.QuestionInfoQuery">
+		 UPDATE question_info
+ 		 <set> 
+			<if test="bean.title != null">
+				 title = #{bean.title},
+			</if>
+			<if test="bean.categoryId != null">
+				 category_id = #{bean.categoryId},
+			</if>
+			<if test="bean.categoryName != null">
+				 category_name = #{bean.categoryName},
+			</if>
+			<if test="bean.difficultyLevel != null">
+				 difficulty_level = #{bean.difficultyLevel},
+			</if>
+			<if test="bean.question != null">
+				 question = #{bean.question},
+			</if>
+			<if test="bean.answerAnalysis != null">
+				 answer_analysis = #{bean.answerAnalysis},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id = #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name = #{bean.createUserName},
+			</if>
+			<if test="bean.readCount != null">
+				 read_count = #{bean.readCount},
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count = #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type = #{bean.postUserType},
+			</if>
+ 		 </set>
+ 		 <include refid="query_condition" />
+	</update>
+
+	<!--多条件删除-->
+	<delete id="deleteByParam">
+		 delete from question_info
+ 		 <include refid="query_condition" />
+	</delete>
+
+	<!-- 根据QuestionId修改-->
+	<update id="updateByQuestionId" parameterType="com.easyjob.entity.po.QuestionInfo">
+		 UPDATE question_info
+ 		 <set> 
+			<if test="bean.title != null">
+				 title = #{bean.title},
+			</if>
+			<if test="bean.categoryId != null">
+				 category_id = #{bean.categoryId},
+			</if>
+			<if test="bean.categoryName != null">
+				 category_name = #{bean.categoryName},
+			</if>
+			<if test="bean.difficultyLevel != null">
+				 difficulty_level = #{bean.difficultyLevel},
+			</if>
+			<if test="bean.question != null">
+				 question = #{bean.question},
+			</if>
+			<if test="bean.answerAnalysis != null">
+				 answer_analysis = #{bean.answerAnalysis},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.createUserId != null">
+				 create_user_id = #{bean.createUserId},
+			</if>
+			<if test="bean.createUserName != null">
+				 create_user_name = #{bean.createUserName},
+			</if>
+			<if test="bean.readCount != null">
+				 read_count = #{bean.readCount},
+			</if>
+			<if test="bean.collectCount != null">
+				 collect_count = #{bean.collectCount},
+			</if>
+			<if test="bean.postUserType != null">
+				 post_user_type = #{bean.postUserType},
+			</if>
+ 		 </set>
+ 		 where question_id=#{questionId}
+	</update>
+
+	<!-- 根据QuestionId删除-->
+	<delete id="deleteByQuestionId">
+		delete from question_info where question_id=#{questionId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByQuestionId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from question_info where question_id=#{questionId}
+	</select>
+
+</mapper>

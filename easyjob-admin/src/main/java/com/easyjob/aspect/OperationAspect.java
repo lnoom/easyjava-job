@@ -16,6 +16,7 @@ import org.apache.poi.util.ArrayUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +45,12 @@ public class OperationAspect {
     private static final String[] BASE_TYPE_ARRAY = new String[]{"java.lang.String",
             "java.lang.Integer", "java.lang.Long"};
 
-    @Before("@annotation(com.easyjob.annotation.GlobalInterceptor)")
-    public void interceptorDo(JoinPoint point) {
+    @Pointcut("@annotation(com.easyjob.annotation.GlobalInterceptor)")
+    private void requestInterceptor() {
+    }
+
+    @Before("requestInterceptor()")
+    public void interceptorDo(JoinPoint point) throws BusinessException {
         Object[] arguments = point.getArgs();
         Method method = ((MethodSignature) point.getSignature()).getMethod();
         GlobalInterceptor interceptor = method.getAnnotation(GlobalInterceptor.class);
@@ -91,7 +96,7 @@ public class OperationAspect {
     /**
      * 参数校验
      */
-    private void validateParams(Method method, Object[] arguments) {
+    private void validateParams(Method method, Object[] arguments) throws BusinessException {
         Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
@@ -139,7 +144,7 @@ public class OperationAspect {
      * @param value
      * @param verifyParam
      */
-    private void checkValue(Object value, VerifyParam verifyParam) {
+    private void checkValue(Object value, VerifyParam verifyParam) throws BusinessException {
         Boolean isEmpty = value == null || StringTools.isEmpty(value.toString());
         Integer length = value == null ? 0 : value.toString().length();
 
@@ -159,7 +164,7 @@ public class OperationAspect {
         /**
          * 校验正则
          */
-        if (!isEmpty && StringTools.isEmpty(verifyParam.regex().getRegex()) && VerifyUtils.verify(verifyParam.regex(), String.valueOf(value))) {
+        if (isEmpty || !StringTools.isEmpty(verifyParam.regex().getRegex()) && !VerifyUtils.verify(verifyParam.regex(), String.valueOf(value))) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
     }

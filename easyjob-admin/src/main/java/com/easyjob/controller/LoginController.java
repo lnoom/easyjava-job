@@ -84,7 +84,7 @@ public class LoginController extends ABaseController {
     @RequestMapping("/updateMyPwd")
     @GlobalInterceptor
     public ResponseVO updateMyPwd(HttpSession session,
-                                @VerifyParam(required = true, regex = VerifyRegexEnum.PASSWORD) String password) {
+                                  @VerifyParam(required = true, regex = VerifyRegexEnum.PASSWORD) String password) {
         SessionUserAdminDto userAdminDto = getUserAdminFromSession(session);
         SysAccount sysAccount = new SysAccount();
         sysAccount.setPassword(StringTools.encodeByMD5(password));
